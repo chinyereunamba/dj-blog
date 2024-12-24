@@ -40,7 +40,7 @@ class MyManager(BaseUserManager):
 class Account(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(_("Email"), max_length=80, unique=True)
     username = models.CharField(_("Username"), max_length=50, unique=True)
-    
+
     email_verified = models.BooleanField(default=False)
 
     bio = models.TextField(_("Bio"), blank=True)
@@ -76,7 +76,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
 
 class Tag(models.Model):
-    tag = models.CharField(_("Tag"), max_length=50)
+    tag = models.CharField(_("Tag"), max_length=50, unique=True)
     created_at = models.DateField(_("Created"), auto_now_add=True)
 
     def __str__(self):
@@ -117,7 +117,7 @@ class BlogPost(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="draft")
     created_at = models.DateTimeField(_("Created"), auto_now_add=True)
     updated_at = models.DateTimeField(_("Updated"), auto_now=True)
-    slug = models.SlugField(_("Slug"), max_length=255, blank=True)
+    slug = models.SlugField(_("Slug"), max_length=255, unique=True)
 
     def __str__(self):
         return self.title

@@ -1,6 +1,3 @@
-Here’s a more detailed and structured README for your Django project:
-
----
 
 # **Django Web Application**
 
@@ -209,6 +206,3 @@ For any questions or support, please contact the project maintainers via [email]
 - Tailwind CSS configuration can be found in the `tailwind` folder.
 - This project uses Django's template system for rendering HTML views, and the static assets (CSS files) are served through Django’s static file handling system.
 
----
-
-Let me know if you'd like more information added, or if you have any specific instructions!

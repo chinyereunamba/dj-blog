@@ -3,7 +3,7 @@
 <main
   class="flex-grow container mx-auto px-4 py-8 flex items-center justify-center"
 >
-  <div class="w-full max-w-sm">
+  <div class="w-full max-w-lg">
     <div class="card-body">
       <h2 class="card-title text-2xl font-bold mb-4">Login</h2>
       <form method="post">
@@ -46,7 +46,11 @@
         </div>
       </form>
       <div class="divider">OR</div>
-      <button type="submit" class="btn btn-outline btn-block">
+      <button
+        type="submit"
+        class="btn btn-outline btn-block"
+        onclick="location.href='{% url 'google_login' %}?process=login'"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           class="h-6 w-6 mr-2"

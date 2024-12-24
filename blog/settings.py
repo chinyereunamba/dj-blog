@@ -13,9 +13,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config("DEBUG", default=False, cast=bool)
+# DEBUG = config("DEBUG", default=False, cast=bool)
 
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="").split(",")
+DEBUG = True
+
+if not DEBUG:
+    ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="127.0.0.1").split(",")
+else:
+    ALLOWED_HOSTS = []
+
 AUTH_USER_MODEL = "base.Account"
 
 AUTHENTICATION_BACKENDS = [
@@ -100,11 +106,9 @@ if DEBUG:
     }
 else:
     DATABASES = {
-        "default": dj_database_url.config(
-            default=config('DB_URI'), conn_max_age=600
-        )
+        "default": dj_database_url.config(default=config("DB_URI"), conn_max_age=600)
     }
-    DATABASES['default']['NAME'] = 'blog'
+    DATABASES["default"]["NAME"] = "blog"
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -146,7 +150,9 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",  # Adjust this to your project's directory
 ]
 
-if not DEBUG:  # Tell Django to copy static assets into a path called `staticfiles` (this is specific to Render)
+if (
+    not DEBUG
+):  # Tell Django to copy static assets into a path called `staticfiles` (this is specific to Render)
     STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Default primary key field type
@@ -193,3 +199,5 @@ ACCOUNT_EMAIL_VERIFICATION = (
     "mandatory"  # Can be 'mandatory' if you want strict verification
 )
 SOCIALACCOUNT_QUERY_EMAIL = True  # Request email during Google login
+SOCIALACCOUNT_LOGIN_ON_GET = True
+SOCIALACCOUNT_ADAPTER = "base.signals.MySocialAccountAdapter"
