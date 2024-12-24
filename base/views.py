@@ -1,16 +1,25 @@
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.views.generic import CreateView
 from django.urls import reverse
-
-from .forms import NewUserForm, PostForm, ProfileForm
-from .models import Account, BlogPost, Tag
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.template.loader import render_to_string
+from django.core.mail import EmailMessage
+from django.http import HttpResponse
+from django.contrib.auth.tokens import default_token_generator
 from django.views.generic import DetailView, ListView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 
+from .forms import NewUserForm, PostForm, ProfileForm
+from .models import Account, BlogPost, Tag
+
 # Create your views here.
+
 
 def login_view(request):
     if request.method == "POST":
@@ -32,8 +41,47 @@ class SignupView(CreateView):
     template_name = "base/register.html"
     form_class = NewUserForm
 
+    def form_valid(self, form):
+        user = form.save(commit=False)
+        user.is_active = False  # Deactivate account until email is verified
+        user.save()
+
+        # Generate activation token
+        current_site = get_current_site(self.request)
+        mail_subject = "Activate your account"
+        message = render_to_string(
+            "base/activation_email.html",
+            {
+                "user": user,
+                "domain": current_site.domain,
+                "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+                "token": default_token_generator.make_token(user),
+            },
+        )
+        email = EmailMessage(mail_subject, message, to=[user.email])
+        email.send()
+      
+        return HttpResponse("Check your email to activate your account.")
+
     def get_success_url(self):
         return reverse("login")
+
+
+def activate(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = Account.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, Account.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        user.is_active = True
+        user.email_verified = True
+        user.save()
+        login(request, user)
+        return HttpResponse("Your account has been activated.")
+    else:
+        return HttpResponse("Activation link is invalid!")
 
 
 def logout_view(request):
@@ -100,13 +148,16 @@ class PostListView(ListView):
     ordering = ("title",)
 
     def get_queryset(self):
-        status = self.request.GET.get("status", "published") 
-        queryset = BlogPost.objects.filter(status=status).order_by("-created_at")
+        status = self.request.GET.get("status", "published")
+        queryset = BlogPost.objects.filter(
+            status=status).order_by("-created_at")
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["latest_post"] = BlogPost.objects.filter(status="published").order_by("-created_at")[:3]
+        context["latest_post"] = BlogPost.objects.filter(status="published").order_by(
+            "-created_at"
+        )[:3]
         context["tags"] = Tag.objects.all()
         return context
 
@@ -115,11 +166,11 @@ class PostCreateView(LoginRequiredMixin, CreateView):
     model = BlogPost
     form_class = PostForm
     template_name = "base/add-post.html"
-    login_url = '/login/'
+    login_url = "/login/"
 
     def form_valid(self, form):
         post = form.save(commit=False)
-        post.user = self.request.user 
+        post.user = self.request.user
         post.save()
 
         if "save_draft" in self.request.POST:  # If "Save as Draft" button is clicked
@@ -127,8 +178,11 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         elif "publish" in self.request.POST:  # If "Publish" button is clicked
             post.status = "published"
 
-        tags_input = self.request.POST.get("tags", "")  # Get tags from hidden input
-        tag_list = [tag.strip() for tag in tags_input.split(",") if tag.strip()]  # Clean tags
+        tags_input = self.request.POST.get(
+            "tags", "")  # Get tags from hidden input
+        tag_list = [
+            tag.strip() for tag in tags_input.split(",") if tag.strip()
+        ]  # Clean tags
 
         for tag_name in tag_list:
             tag, created = Tag.objects.get_or_create(tag=tag_name)

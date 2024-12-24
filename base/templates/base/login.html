@@ -35,7 +35,7 @@
           />
           <label class="label">
             <a
-              href="forgot-password.html"
+              href="{% url 'password_reset' %}"
               class="label-text-alt link link-hover"
               >Forgot password?</a
             >
@@ -61,7 +61,7 @@
       </button>
       <p class="text-center mt-4">
         Don't have an account?
-        <a href="register.html" class="link link-primary">Register</a>
+        <a href="{% url 'register' %}" class="link link-primary">Register</a>
       </p>
     </div>
   </div>

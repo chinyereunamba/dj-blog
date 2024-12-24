@@ -40,6 +40,8 @@ class MyManager(BaseUserManager):
 class Account(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(_("Email"), max_length=80, unique=True)
     username = models.CharField(_("Username"), max_length=50, unique=True)
+    
+    email_verified = models.BooleanField(default=False)
 
     bio = models.TextField(_("Bio"), blank=True)
     first_name = models.CharField(_("First name"), max_length=50, blank=True)

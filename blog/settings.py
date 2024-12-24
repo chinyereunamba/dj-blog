@@ -1,4 +1,5 @@
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -8,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-7w*k4p!6qy57!4*=*xxb&j72(+_=ew(8$9bdvv0$bxs&-$^#k!"
+SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -16,8 +17,13 @@ DEBUG = True
 ALLOWED_HOSTS = []
 AUTH_USER_MODEL = "base.Account"
 
-AUTHENTICATION_BACKENDS = ["base.backends.CaseInsensitiveModelBackend"]
+AUTHENTICATION_BACKENDS = [
+    "base.backends.CaseInsensitiveModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",  # Required for allauth
+]
 
+LOGIN_REDIRECT_URL = "/"  # Redirect URL after login
+LOGOUT_REDIRECT_URL = "/"  # Redirect URL after logout
 
 # Application definition
 
@@ -28,6 +34,13 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # Required for django-allauth
+    "django.contrib.sites",
+    # Allauth
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
     "base",
     "django_browser_reload",
     "crispy_forms",
@@ -37,6 +50,9 @@ INSTALLED_APPS = [
 CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
 CRISPY_TEMPLATE_PACK = "tailwind"
 
+
+SITE_ID = 1
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -45,6 +61,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
     "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]
 
@@ -124,3 +141,43 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = config("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
+
+
+# Google API settings
+
+GOOGLE_CLIENT_ID = config("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = config("GOOGLE_CLIENT_SECRET")
+GOOGLE_REFRESH_TOKEN = config("GOOGLE_REFRESH_TOKEN")
+
+# Django-allauth settings
+
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "APP": {
+            "client_id": GOOGLE_CLIENT_ID,
+            "secret": GOOGLE_CLIENT_SECRET,
+            "key": "",
+        },
+        "SCOPE": [
+            "profile",
+            "email",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "online",
+        },
+    },
+}
+
+
+ACCOUNT_EMAIL_REQUIRED = True  # Ensure email is required
+ACCOUNT_EMAIL_VERIFICATION = (
+    "mandatory"  # Can be 'mandatory' if you want strict verification
+)
+SOCIALACCOUNT_QUERY_EMAIL = True  # Request email during Google login

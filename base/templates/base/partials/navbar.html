@@ -54,7 +54,7 @@
         </a>
         <button
           class="btn btn-primary"
-          x-on:click="window.open('{% url 'logout' %}', '_blank')"
+          onclick="location.href='{% url 'logout' %}'"
         >
           Logout
         </button>
@@ -62,11 +62,12 @@
         <a href="{% url 'register' %}" class="text-gray-300 hover:text-white"
           >Become a writer</a
         >
-        <a
-          href="{% url 'login' %}"
-          class="bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-700"
-          >Sign in</a
+        <button
+          onclick="location.href='{% url 'login' %}'"
+          class="bg-gray-800 btn text-white px-4 py-2 rounded-md hover:bg-gray-700"
         >
+          Sign in
+        </button>
         {% endif %}
       </div>
 

@@ -18,6 +18,45 @@ class NewUserForm(UserCreationForm):
             "password2",
         ]
 
+        widgets = {
+            "first_name": forms.TextInput(
+                attrs={
+                    "class": "input input-bordered w-full",
+                    "placeholder": "John",
+                }
+            ),
+            "last_name": forms.TextInput(
+                attrs={
+                    "class": "input input-bordered w-full",
+                    "placeholder": "Doe",
+                }
+            ),
+            "email": forms.EmailInput(
+                attrs={
+                    "class": "input input-bordered w-full",
+                    "placeholder": "johndoe@mail.com",
+                }
+            ),
+            "username": forms.TextInput(
+                attrs={
+                    "class": "input input-bordered w-full",
+                    "placeholder": "johndoe",
+                }
+            ),
+            "password1": forms.PasswordInput(
+                attrs={
+                    "class": "input input-bordered w-full grow",
+                    "placeholder": "Enter password",
+                }
+            ),
+            "password2": forms.PasswordInput(
+                attrs={
+                    "class": "input input-bordered w-full grow",
+                    "placeholder": "........",
+                }
+            ),
+        }
+
 
 class ProfileForm(forms.ModelForm):
     class Meta:
@@ -50,7 +89,7 @@ class PostForm(forms.ModelForm):
             ),
             "category": forms.Select(
                 attrs={
-                    "class": "input select select-bordered rounded-lg", 
+                    "class": "input select select-bordered rounded-lg",
                 }
             ),
             "featured_image": forms.ClearableFileInput(
