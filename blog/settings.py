@@ -104,6 +104,7 @@ else:
             default=config('DB_URI'), conn_max_age=600
         )
     }
+    DATABASES['default']['NAME'] = 'blog'
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
