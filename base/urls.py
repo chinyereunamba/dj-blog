@@ -1,37 +1,32 @@
 from django.contrib.auth import views as auth_views
 from django.urls import path
-from .views import (
-    about,
-    activate,
-    edit_profile,
-    login_view,
-    logout_view,
-    PostCreateView,
-    PostDeleteView,
-    PostDetailView,
-    PostListView,
-    PostUpdateView,
-    profile,
-    SignupView,
-    UserProfileUpdateView,
-)
+from .views import (about, activate, delete_post, login_view, logout_view, PostCreateView,
+    PostDetailView, PostListView, PostUpdateView, profile, SignupView, UserProfileUpdateView)
 
 urlpatterns = [
     path("", PostListView.as_view(), name="home"),
+    # Auth urls
     path("login/", login_view, name="login"),
     path("sign-up/", SignupView.as_view(), name="register"),
     path("activate/<uidb64>/<token>/", activate, name="activate"),
     path("logout/", logout_view, name="logout"),
+    # User profile urls
     path("u/<str:username>/", profile, name="profile"),
-    path("u/<str:username>/edit/", UserProfileUpdateView.as_view(), name="edit-profile"),
+    path(
+        "u/<str:username>/edit/", UserProfileUpdateView.as_view(), name="edit_profile"
+    ),
     path("about/", about, name="about"),
+    # Post method urls
     path("post/<slug:slug>/", PostDetailView.as_view(), name="post"),
-    path("add-post/", PostCreateView.as_view(), name="add-post"),
-    path("post/<slug:slug>/edit/", PostUpdateView.as_view(), name="edit-post"),
-    path("post/<slug:slug>/delete/", PostDeleteView.as_view(), name="delete-post"),
+    path("add-post/", PostCreateView.as_view(), name="add_post"),
+    path("post/<slug:slug>/edit/", PostUpdateView.as_view(), name="edit_post"),
+    path("post/<slug:slug>/delete/", delete_post, name="delete_post"),
+    # Comment method urls
+    # path("post/<slug:slug>/", CommentCreateView.as_view(), name="comment"),
 ]
 
 
+# Password urls
 urlpatterns += [
     path(
         "password_reset/", auth_views.PasswordResetView.as_view(), name="password_reset"

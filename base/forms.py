@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 
-from .models import Account, BlogPost, Tag, Category
+from .models import Account, BlogPost, Category, Comment, Tag
 
 
 class NewUserForm(UserCreationForm):
@@ -130,3 +130,17 @@ class PostForm(forms.ModelForm):
 class SearchForm(forms.Form):
     query = forms.CharField(max_length=200, required=False)
     tag = forms.CharField(max_length=100, required=False)
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ["comment"]
+        widgets = {
+            "comment": forms.Textarea(
+                attrs={
+                    "class": "textarea textarea-bordered h-24",
+                    "placeholder": "Write your comment here",
+                }
+            ),
+        }

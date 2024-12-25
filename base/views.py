@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -20,8 +21,8 @@ from django.views.generic import (
 from django.urls import reverse_lazy, reverse
 from django.db.models import Q
 
-from .forms import NewUserForm, PostForm, ProfileForm, SearchForm
-from .models import Account, BlogPost, Tag
+from .forms import CommentForm, NewUserForm, PostForm, ProfileForm, SearchForm
+from .models import Account, BlogPost, Comment, Tag
 
 # Create your views here.
 
@@ -119,20 +120,6 @@ class UserProfileUpdateView(LoginRequiredMixin, UpdateView):
         return context
 
 
-def edit_profile(request, username):
-    user = get_object_or_404(Account, username=username)
-    form = ProfileForm(instance=user)
-
-    if request.method == "POST":
-        form = ProfileForm(request.POST, instance=user)
-        if form.is_valid():
-            form.save()
-            return redirect("profile", username=username)
-
-    context = {"form": form}
-    return render(request, "base/edit-profile.html", context)
-
-
 def about(request):
     return render(request, "base/about.html")
 
@@ -158,13 +145,45 @@ def add_post(request):
     return render(request, "base/form.html", context)
 
 
-class PostDetailView(DetailView):
+class PostDetailView(LoginRequiredMixin, DetailView):
     model = BlogPost
     template_name = "base/post.html"
     context_object_name = "post"
 
-    def get_absolute_url(self):
-        return reverse("post", kwargs={"slug": self.slug})
+    def get_context_data(self, **kwargs):
+        # Ensure that self.object is set (fetching the post)
+        context = super().get_context_data(**kwargs)
+        context["form"] = CommentForm()
+        context["comments"] = Comment.objects.filter(post=self.object)
+        return context
+
+    # def get_object(self):
+    #     # Fetch the post object here
+    #     return get_object_or_404(BlogPost, slug=self.kwargs["slug"])
+
+    # def post(self, request, *args, **kwargs):
+    #     # Get the post object in the post method
+    #     post = self.get_object()
+    #     form = CommentForm(request.POST)
+
+    #     if form.is_valid():
+    #         # Create a comment linked to the post and the user
+    #         comment = form.save(commit=False)
+    #         comment.user = request.user
+    #         comment.post = post
+    #         comment.save()
+
+    #         # If this is an HTMX request, render just the new comment
+    #         if request.htmx:
+    #             return render(
+    #                 request, "base/partials/comment.html", {"comment": comment}
+    #             )
+
+    #         # Redirect to the same post if it's not an HTMX request
+    #         return redirect(post.get_absolute_url())
+
+    #     # If the form is not valid, re-render the post page with the form
+    #     return self.render_to_response(self.get_context_data(form=form))
 
 
 class PostListView(ListView):
@@ -265,10 +284,11 @@ class PostUpdateView(LoginRequiredMixin, UpdateView):
     form_class = PostForm
     template_name = "base/edit-post.html"
     login_url = "/login/"
-    
 
     def get_object(self):
-        return get_object_or_404(BlogPost, slug=self.kwargs["slug"], user=self.request.user)
+        return get_object_or_404(
+            BlogPost, slug=self.kwargs["slug"], user=self.request.user
+        )
 
     def form_valid(self, form):
         post = form.save(commit=False)
@@ -301,10 +321,10 @@ class PostUpdateView(LoginRequiredMixin, UpdateView):
         return reverse("profile", kwargs={"username": self.request.user.username})
 
 
-class PostDeleteView(LoginRequiredMixin, DeleteView):
-    model = BlogPost
-    template_name = "base/delete.html"
-    login_url = "/login/"
-
-    def get_success_url(self):
-        return reverse_lazy("profile", kwargs={"username": self.request.username})
+def delete_post(request, slug):
+    post = get_object_or_404(BlogPost, slug=slug)
+    if request.method == "POST":
+        post.delete()
+    if request.htmx:
+        return render(request, "base/partials/delete.html", {"post": post})
+    return render(request, "base/partials/delete.html", {"post": post})

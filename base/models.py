@@ -158,3 +158,13 @@ class BlogPost(models.Model):
             self.slug = slug
 
         super().save(*args, **kwargs)
+
+
+class Comment(models.Model):
+    user = models.ForeignKey(Account, on_delete=models.CASCADE)
+    post = models.ForeignKey(BlogPost, on_delete=models.CASCADE)
+    comment = models.TextField(_('Comment'))
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.user.username

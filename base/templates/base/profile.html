@@ -21,7 +21,7 @@
           <i data-lucide="pencil"></i>
           <button
             class="btn btn-secondary"
-            hx-get="{% url 'edit-profile' user.username %}"
+            hx-get="{% url 'edit_profile' user.username %}"
             hx-target="#edit"
             hx-swap="innerHTML"
             onclick="document.getElementById('overlay').classList.remove('hidden')"
@@ -76,7 +76,7 @@
           {% if request.user == user%}
           <button
             class="btn btn-secondary"
-            onclick="location.href='{% url 'add-post' %}'"
+            onclick="location.href='{% url 'add_post' %}'"
           >
             Add Article
           </button>
