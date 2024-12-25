@@ -10,12 +10,27 @@
           <div
             class="w-32 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2"
           >
-            <img src="https://placehold.co/128x128" alt="Jane Doe" />
+            <img src="{{user.image.url}}" alt="{{user.username}}" />
           </div>
         </div>
-        <h1 class="text-2xl font-bold mb-1">
-          {{user.first_name}} {{user.last_name}} <i data-lucide="pencil"></i>
-        </h1>
+        <div>
+          <h1 class="text-2xl font-bold mb-1">
+            {{user.first_name}} {{user.last_name}}
+          </h1>
+          {% if request.user == user %}
+          <i data-lucide="pencil"></i>
+          <button
+            class="btn btn-secondary"
+            hx-get="{% url 'edit-profile' user.username %}"
+            hx-target="#edit"
+            hx-swap="innerHTML"
+            onclick="document.getElementById('overlay').classList.remove('hidden')"
+          >
+            Edit
+          </button>
+          {% endif %}
+        </div>
+
         <p class="text-base-content/70 mb-4">@{{user.username}}</p>
         <p class="text-base-content/70 mb-4">Senior Software Engineer</p>
         <button class="btn btn-primary w-full mb-4">Follow</button>
@@ -93,7 +108,9 @@
                   {{post.description|truncatewords:14}}
                 </p>
                 <div class="mt-2 text-sm text-base-content/50">
-                  Published on {{post.created_at|date:"M d, Y"}} • 12 min read
+                  <p>
+                    Published on {{post.created_at|date:"M d, Y"}} • 12 min read
+                  </p>
                 </div>
               </a>
             </div>
@@ -104,6 +121,19 @@
       </div>
     </div>
   </div>
+  <section
+    id="overlay"
+    class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+  >
+    <div class="modal-box max-w-3xl text-base">
+      <div id="edit">
+        <!-- HTMX will load modal content here -->
+      </div>
+      <div class="modal-action">
+       
+      </div>
+    </div>
+  </section>
 </main>
 
 {% endblock body %}

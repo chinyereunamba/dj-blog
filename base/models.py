@@ -1,3 +1,4 @@
+import os
 from django.db import models
 from django.contrib.auth.models import (
     BaseUserManager,
@@ -47,6 +48,8 @@ class Account(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(_("First name"), max_length=50, blank=True)
     last_name = models.CharField(_("Last name"), max_length=50, blank=True)
 
+    image = models.ImageField(_("Profile Image"), upload_to="profile/", default='user.png')
+
     last_login = models.DateTimeField(_("Last Login"), auto_now=True, blank=True)
     date_joined = models.DateField(_("Date Joined"), auto_now_add=True, blank=True)
 
@@ -66,6 +69,25 @@ class Account(AbstractBaseUser, PermissionsMixin):
     def has_perm(self, perm, obj=None):
         """Check if the user has a specific permission."""
         return True
+
+    def rename_image(self, filename):
+        ext = filename.split(".")[-1]
+        new_filename = f"{self.username}.{ext}"
+        # Return the path to upload the file
+        return os.path.join("profile/", new_filename)
+
+    def save(self, *args, **kwargs):
+        if self.image:  # Ensure image exists
+            file_path = os.path.join("media", self.image.name)  # Full path
+
+            # If file already exists, delete it before saving the new one
+            if os.path.exists(file_path):
+                os.remove(file_path)  # Delete existing file
+
+            # Rename the file before saving
+            self.image.name = self.rename_image(self.image.name)
+
+        super().save(*args, **kwargs)
 
     def has_module_perms(self, app_label):
         """

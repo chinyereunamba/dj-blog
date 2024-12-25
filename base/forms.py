@@ -61,7 +61,35 @@ class NewUserForm(UserCreationForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Account
-        fields = ["bio", "first_name", "last_name"]
+        fields = ["bio", "first_name", "last_name", "image"]
+        widgets = {
+            "first_name": forms.TextInput(
+                attrs={
+                    "class": "input input-bordered w-full",
+                    "placeholder": "Enter your first name",
+                }
+            ),
+            "last_name": forms.TextInput(
+                attrs={
+                    "class": "input input-bordered w-full",
+                    "placeholder": "Enter your last name",
+                }
+            ),
+            "bio": forms.Textarea(
+                attrs={
+                    "class": "textarea textarea-bordered h-10",
+                    "placeholder": "A brief description of yourself",
+                }
+            ),
+            "image": forms.FileInput(
+                attrs={
+                    "class": "file-input file-input-bordered w-full",  # DaisyUI Classes
+                    "placeholder": "Upload an image of yourself",
+                    "accept": "image/*",
+                    "type": "file",
+                }
+            ),
+        }
 
 
 class PostForm(forms.ModelForm):

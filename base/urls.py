@@ -13,7 +13,7 @@ from .views import (
     PostUpdateView,
     profile,
     SignupView,
-    view_post,
+    UserProfileUpdateView,
 )
 
 urlpatterns = [
@@ -23,12 +23,12 @@ urlpatterns = [
     path("activate/<uidb64>/<token>/", activate, name="activate"),
     path("logout/", logout_view, name="logout"),
     path("u/<str:username>/", profile, name="profile"),
-    path("u/<str:username>/edit/", edit_profile, name="edit-profile"),
+    path("u/<str:username>/edit/", UserProfileUpdateView.as_view(), name="edit-profile"),
     path("about/", about, name="about"),
     path("post/<slug:slug>/", PostDetailView.as_view(), name="post"),
     path("add-post/", PostCreateView.as_view(), name="add-post"),
-    path("post/<int:pk>/edit/", PostUpdateView.as_view(), name="edit-post"),
-    path("post/<int:pk>/delete/", PostDeleteView.as_view(), name="delete-post"),
+    path("post/<slug:slug>/edit/", PostUpdateView.as_view(), name="edit-post"),
+    path("post/<slug:slug>/delete/", PostDeleteView.as_view(), name="delete-post"),
 ]
 
 

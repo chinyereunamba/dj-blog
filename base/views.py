@@ -101,6 +101,24 @@ def profile(request, username):
     return render(request, "base/profile.html", context)
 
 
+class UserProfileUpdateView(LoginRequiredMixin, UpdateView):
+    model = Account
+    form_class = ProfileForm
+    template_name = "base/edit-profile.html"
+    context_object_name = "user"
+
+    def get_object(self):
+        return get_object_or_404(Account, username=self.kwargs["username"])
+
+    def get_success_url(self):
+        return reverse_lazy("profile", kwargs={"username": self.object.username})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        return context
+
+
 def edit_profile(request, username):
     user = get_object_or_404(Account, username=username)
     form = ProfileForm(instance=user)
@@ -112,7 +130,7 @@ def edit_profile(request, username):
             return redirect("profile", username=username)
 
     context = {"form": form}
-    return render(request, "base/form.html", context)
+    return render(request, "base/edit-profile.html", context)
 
 
 def about(request):
@@ -247,9 +265,10 @@ class PostUpdateView(LoginRequiredMixin, UpdateView):
     form_class = PostForm
     template_name = "base/edit-post.html"
     login_url = "/login/"
+    
 
     def get_object(self):
-        return get_object_or_404(BlogPost, id=self.kwargs["pk"], user=self.request.user)
+        return get_object_or_404(BlogPost, slug=self.kwargs["slug"], user=self.request.user)
 
     def form_valid(self, form):
         post = form.save(commit=False)
@@ -285,5 +304,7 @@ class PostUpdateView(LoginRequiredMixin, UpdateView):
 class PostDeleteView(LoginRequiredMixin, DeleteView):
     model = BlogPost
     template_name = "base/delete.html"
-    success_url = reverse_lazy("profile")
     login_url = "/login/"
+
+    def get_success_url(self):
+        return reverse_lazy("profile", kwargs={"username": self.request.username})

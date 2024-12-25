@@ -1,149 +1,114 @@
-{% extends "base/base.html" %} {% block body %}
-
-<main class="flex-grow container mx-auto px-4 py-8">
-  <div class="max-w-4xl mx-auto">
-    <h1 class="text-3xl font-bold mb-8">Edit Profile</h1>
-    <form class="space-y-6">
-      <div class="flex flex-col md:flex-row gap-6">
-        <div class="form-control flex-1">
-          <label for="first-name" class="label">
-            <span class="label-text">First Name</span>
-          </label>
+<div class="max-w-4xl mx-auto">
+  <h1 class="text-3xl font-bold mb-8">Edit Profile</h1>
+  <form class="space-y-6" method="post">
+    {% csrf_token %}
+    <div class="flex flex-col md:flex-row gap-6">
+      <div class="form-control flex-1">
+        <label for="first-name" class="label">
+          <span class="label-text">First Name</span>
+        </label>
+        {{form.first_name}}
+      </div>
+      <div class="form-control flex-1">
+        <label for="last-name" class="label">
+          <span class="label-text">Last Name</span>
+        </label>
+        {{form.last_name}}
+      </div>
+    </div>
+    <div class="form-control">
+      <label for="bio" class="label">
+        <span class="label-text">Bio</span>
+      </label>
+      {{form.bio}}
+    </div>
+    <div class="form-control">
+      <label for="profile-picture" class="label">
+        <span class="label-text">Profile Picture</span>
+      </label>
+      {{form.image}}
+    </div>
+    <div class="form-control">
+      <label class="label">
+        <span class="label-text">Areas of Expertise</span>
+      </label>
+      <div class="flex flex-wrap gap-2">
+        <label class="label cursor-pointer">
           <input
-            type="text"
-            id="first-name"
-            class="input input-bordered w-full"
-            placeholder="Enter your first name"
-            required
-            value="Jane"
+            type="checkbox"
+            checked="checked"
+            class="checkbox checkbox-primary mr-2"
           />
-        </div>
-        <div class="form-control flex-1">
-          <label for="last-name" class="label">
-            <span class="label-text">Last Name</span>
-          </label>
+          <span class="label-text">React</span>
+        </label>
+        <label class="label cursor-pointer">
           <input
-            type="text"
-            id="last-name"
-            class="input input-bordered w-full"
-            placeholder="Enter your last name"
-            required
-            value="Doe"
+            type="checkbox"
+            checked="checked"
+            class="checkbox checkbox-primary mr-2"
           />
-        </div>
-      </div>
-      <div class="form-control">
-        <label for="email" class="label">
-          <span class="label-text">Email</span>
+          <span class="label-text">TypeScript</span>
         </label>
-        <input
-          type="email"
-          id="email"
-          class="input input-bordered w-full"
-          placeholder="Enter your email"
-          required
-          value="jane.doe@example.com"
-        />
-      </div>
-      <div class="form-control">
-        <label for="bio" class="label">
-          <span class="label-text">Bio</span>
+        <label class="label cursor-pointer">
+          <input
+            type="checkbox"
+            checked="checked"
+            class="checkbox checkbox-primary mr-2"
+          />
+          <span class="label-text">Node.js</span>
         </label>
-        <textarea
-          id="bio"
-          class="textarea textarea-bordered h-24"
-          placeholder="Write a short bio about yourself"
-        >
-Passionate about web development and open source. I love creating efficient, scalable, and user-friendly applications. Always eager to learn and share knowledge with the community.</textarea
-        >
-      </div>
-      <div class="form-control">
-        <label for="profile-picture" class="label">
-          <span class="label-text">Profile Picture</span>
+        <label class="label cursor-pointer">
+          <input
+            type="checkbox"
+            checked="checked"
+            class="checkbox checkbox-primary mr-2"
+          />
+          <span class="label-text">GraphQL</span>
         </label>
-        <input
-          type="file"
-          id="profile-picture"
-          class="file-input file-input-bordered w-full"
-          accept="image/*"
-        />
-      </div>
-      <div class="form-control">
-        <label class="label">
-          <span class="label-text">Areas of Expertise</span>
+        <label class="label cursor-pointer">
+          <input
+            type="checkbox"
+            checked="checked"
+            class="checkbox checkbox-primary mr-2"
+          />
+          <span class="label-text">AWS</span>
         </label>
-        <div class="flex flex-wrap gap-2">
-          <label class="label cursor-pointer">
-            <input
-              type="checkbox"
-              checked="checked"
-              class="checkbox checkbox-primary mr-2"
-            />
-            <span class="label-text">React</span>
-          </label>
-          <label class="label cursor-pointer">
-            <input
-              type="checkbox"
-              checked="checked"
-              class="checkbox checkbox-primary mr-2"
-            />
-            <span class="label-text">TypeScript</span>
-          </label>
-          <label class="label cursor-pointer">
-            <input
-              type="checkbox"
-              checked="checked"
-              class="checkbox checkbox-primary mr-2"
-            />
-            <span class="label-text">Node.js</span>
-          </label>
-          <label class="label cursor-pointer">
-            <input
-              type="checkbox"
-              checked="checked"
-              class="checkbox checkbox-primary mr-2"
-            />
-            <span class="label-text">GraphQL</span>
-          </label>
-          <label class="label cursor-pointer">
-            <input
-              type="checkbox"
-              checked="checked"
-              class="checkbox checkbox-primary mr-2"
-            />
-            <span class="label-text">AWS</span>
-          </label>
-        </div>
       </div>
-      <div class="form-control">
-        <label for="twitter" class="label">
-          <span class="label-text">Twitter Profile</span>
-        </label>
-        <input
-          type="url"
-          id="twitter"
-          class="input input-bordered w-full"
-          placeholder="https://twitter.com/yourusername"
-          value="https://twitter.com/janedoe"
-        />
-      </div>
-      <div class="form-control">
-        <label for="github" class="label">
-          <span class="label-text">GitHub Profile</span>
-        </label>
-        <input
-          type="url"
-          id="github"
-          class="input input-bordered w-full"
-          placeholder="https://github.com/yourusername"
-          value="https://github.com/janedoe"
-        />
-      </div>
-      <div class="flex justify-end space-x-4">
-        <button type="button" class="btn btn-outline">Cancel</button>
-        <button type="submit" class="btn btn-primary">Save Changes</button>
-      </div>
-    </form>
-  </div>
-</main>
-{% endblock body %}
+    </div>
+    <div class="form-control">
+      <label for="twitter" class="label">
+        <span class="label-text">Twitter Profile</span>
+      </label>
+      <input
+        type="url"
+        id="twitter"
+        class="input input-bordered w-full"
+        placeholder="https://twitter.com/yourusername"
+        value="https://twitter.com/janedoe"
+      />
+    </div>
+    <div class="form-control">
+      <label for="github" class="label">
+        <span class="label-text">GitHub Profile</span>
+      </label>
+      <input
+        type="url"
+        id="github"
+        class="input input-bordered w-full"
+        placeholder="https://github.com/yourusername"
+        value="https://github.com/janedoe"
+      />
+    </div>
+    <div class="flex justify-end space-x-4">
+      <button
+        type="button"
+        id="cancel"
+        class="btn btn-outline"
+        onclick="document.getElementById('overlay').classList.add('hidden')"
+      >
+        Cancel
+      </button>
+      <button type="submit" class="btn btn-primary">Save Changes</button>
+    </div>
+  </form>
+</div>
