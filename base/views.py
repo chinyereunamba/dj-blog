@@ -1,21 +1,26 @@
-from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.sites.shortcuts import get_current_site
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from django.views.generic import CreateView
-from django.urls import reverse
-from django.contrib.sites.shortcuts import get_current_site
+from django.core.mail import EmailMessage
+from django.core.paginator import Paginator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.template.loader import render_to_string
-from django.core.mail import EmailMessage
-from django.http import HttpResponse
-from django.contrib.auth.tokens import default_token_generator
-from django.views.generic import DetailView, ListView, UpdateView, DeleteView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse_lazy
+from django.http import HttpResponse, JsonResponse
+from django.views.generic import (
+    DetailView,
+    ListView,
+    UpdateView,
+    DeleteView,
+    CreateView,
+)
+from django.urls import reverse_lazy, reverse
+from django.db.models import Q
 
-from .forms import NewUserForm, PostForm, ProfileForm
+from .forms import NewUserForm, PostForm, ProfileForm, SearchForm
 from .models import Account, BlogPost, Tag
 
 # Create your views here.
@@ -60,7 +65,7 @@ class SignupView(CreateView):
         )
         email = EmailMessage(mail_subject, message, to=[user.email])
         email.send()
-      
+
         return HttpResponse("Check your email to activate your account.")
 
     def get_success_url(self):
@@ -140,18 +145,37 @@ class PostDetailView(DetailView):
     template_name = "base/post.html"
     context_object_name = "post"
 
+    def get_absolute_url(self):
+        return reverse("post", kwargs={"slug": self.slug})
+
 
 class PostListView(ListView):
     model = BlogPost
     template_name = "base/index.html"
     context_object_name = "posts"
     ordering = ("title",)
+    paginate_by = 10
 
     def get_queryset(self):
+        query = self.request.GET.get("query", "")
+        tags = self.request.GET.getlist("tag")
         status = self.request.GET.get("status", "published")
-        queryset = BlogPost.objects.filter(
-            status=status).order_by("-created_at")
-        return queryset
+        queryset = (
+            BlogPost.objects.prefetch_related("tags")
+            .filter(status=status)
+            .order_by("-created_at")
+        )
+        if query:
+            queryset = queryset.filter(
+                Q(title__icontains=query) | Q(content__icontains=query)
+            )
+
+        # Filter by tag
+        if tags:
+            for tag in tags:
+                queryset = queryset.filter(tags__tag__icontains=tag)
+
+        return queryset.distinct()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -159,7 +183,32 @@ class PostListView(ListView):
             "-created_at"
         )[:3]
         context["tags"] = Tag.objects.all()
+        context["query"] = self.request.GET.get("query", "")
+        context["tag_filter"] = self.request.GET.get("tag", "")  # Added
+
         return context
+
+    def render_to_response(self, context, **response_kwargs):
+        # Handle HTMX requests to render partial HTML
+        if self.request.headers.get("HX-Request"):
+            return render(self.request, "base/partials/post_list.html", context)
+        return super().render_to_response(context, **response_kwargs)
+
+
+class PostFilterView(ListView):
+    model = BlogPost
+    template_name = "base/partials/post_list.html"
+    context_object_name = "posts"
+
+    def get_queryset(self):
+        # Filter by tag dynamically
+        tag_filter = self.request.GET.get("tag")
+        queryset = BlogPost.objects.filter(status="published")
+
+        if tag_filter:
+            queryset = queryset.filter(tags__name__icontains=tag_filter)
+
+        return queryset
 
 
 class PostCreateView(LoginRequiredMixin, CreateView):
@@ -178,8 +227,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         elif "publish" in self.request.POST:  # If "Publish" button is clicked
             post.status = "published"
 
-        tags_input = self.request.POST.get(
-            "tags", "")  # Get tags from hidden input
+        tags_input = self.request.POST.get("tags", "")  # Get tags from hidden input
         tag_list = [
             tag.strip() for tag in tags_input.split(",") if tag.strip()
         ]  # Clean tags

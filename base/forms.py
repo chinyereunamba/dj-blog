@@ -97,3 +97,8 @@ class PostForm(forms.ModelForm):
             ),
             "publish": forms.CheckboxInput(attrs={"class": "toggle toggle-primary"}),
         }
+
+
+class SearchForm(forms.Form):
+    query = forms.CharField(max_length=200, required=False)
+    tag = forms.CharField(max_length=100, required=False)

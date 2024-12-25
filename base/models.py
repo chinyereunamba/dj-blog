@@ -123,15 +123,15 @@ class BlogPost(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
-        if self.slug == None:
-            slug = slugify(self.title)
-
-            has_slug = BlogPost.objects.filter(slug=slug).exists()
+        if not self.slug:
+            base_slug = slugify(self.title)
+            slug = base_slug
             count = 1
-            while has_slug:
+
+            # Ensure uniqueness by appending numbers if needed
+            while BlogPost.objects.filter(slug=slug).exists():
+                slug = f"{base_slug}-{count}"
                 count += 1
-                slug = slugify(self.title) + "-" + str(count)
-                has_slug = BlogPost.objects.filter(slug=slug).exists()
 
             self.slug = slug
 

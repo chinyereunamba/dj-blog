@@ -97,6 +97,7 @@ class BlogPostModelTests(TestCase):
             content="AI is evolving rapidly."
         )
         self.assertTrue(post.slug)  # Slug should not be empty
+        self.assertNotEqual(post.slug, 'ai-is-evolving-rapidly')
 
     def test_slug_uniqueness_on_save(self):
         """Test that the slug is unique"""

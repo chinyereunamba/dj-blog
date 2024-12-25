@@ -46,43 +46,44 @@
 <!-- All Posts -->
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
   <h2 class="text-2xl font-semibold mb-8">All Posts</h2>
-
+  <form
+    hx-get="?"
+    hx-target="#post-list"
+    hx-swap="innerHTML"
+    hx-push-url="true"
+    method="GET"
+    class="flex gap-2 mb-8"
+  >
+    <input
+      type="text"
+      name="query"
+      value="{{ query }}"
+      placeholder="Search posts..."
+      class="input input-bordered w-full"
+    />
+    <button type="submit" class="btn btn-secondary">Search</button>
+  </form>
   <!-- Tags -->
   <div class="flex flex-wrap gap-2 mb-8">
     {% for tag in tags.all %}
+    {% with "?tag="|add:tag.tag as tag_query %}
+      {% if query %}
+        {% with tag_query|add:"&query="|add:query as tag_query %}
+        {% endwith %}
+      {% endif %}
     <button
-      class="px-4 py-2 capitalize rounded-full bg-gray-800 text-gray-300 hover:bg-gray-700"
+      hx-get="{{ tag_query }}"
+      hx-target="#post-list"
+      hx-swap="innerHTML"
+      hx-push-url="true"
+      class="btn btn-outline rounded-full"
     >
-      {{tag}}</button
-    >{% endfor %}
+      {{ tag }}
+    </button>
+    {% endwith %} {% endfor %}
   </div>
 
   <!-- Posts Grid -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    <!-- Post Cards -->
-    {% for post in posts %}
-
-    <div
-      class="bg-gray-800 rounded-lg overflow-hidden hover:scale-105 duration-300 hover:bg-gray-700 transition-all"
-    >
-      <img
-        src="https://placehold.co/400x300"
-        alt="Tailwind CSS"
-        class="w-full h-48 object-cover cursor-pointer"
-      />
-      <div class="p-6">
-        <h3 class="text-xl font-semibold mb-2">
-          <a href="{% url 'post' post.slug %}"> {{post.title}} </a>
-        </h3>
-        <p class="text-gray-400 mb-4">{{post.description | truncatewords:9}}</p>
-        <div class="flex items-center text-sm text-gray-500">
-          <span>{{post.created_at|date:"F d, Y"}}</span>
-           <span class="mx-2">•</span>
-          <span>11 min read</span>
-        </div>
-      </div>
-    </div>
-    {% endfor %}
-  </div>
+  <div id="post-list">{% include 'base/partials/post_list.html' %}</div>
 </div>
 {% endblock body %}
