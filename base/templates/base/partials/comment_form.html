@@ -1,0 +1,14 @@
+<div class="w-full">
+  <form method="post" hx-target="#comments" hx-swap="beforeend">
+    {% csrf_token %}
+    <div class="form-control flex-1">
+      <label for="last-name" class="label">
+        <span class="label-text">Comment</span>
+      </label>
+      {{form.comment}}
+    </div>
+    <div class="mt-4 text-right flex-1">
+      <button type="submit" class="btn btn-primary">Post comment</button>
+    </div>
+  </form>
+</div>

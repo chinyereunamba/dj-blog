@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 
 from .models import Account, BlogPost, Category, Comment, Tag
-
+from tinymce.widgets import TinyMCE
 
 class NewUserForm(UserCreationForm):
 
@@ -93,6 +93,8 @@ class ProfileForm(forms.ModelForm):
 
 
 class PostForm(forms.ModelForm):
+    content = forms.CharField(widget=TinyMCE())
+
     class Meta:
         model = BlogPost
         fields = ["title", "description", "category", "content"]
@@ -103,18 +105,18 @@ class PostForm(forms.ModelForm):
                     "placeholder": "Enter post title",
                 }
             ),
-            "description": forms.Textarea(
+            "description": forms.TextInput(
                 attrs={
-                    "class": "textarea textarea-bordered !h-24",
+                    "class": "input input-bordered !h-24",
                     "placeholder": "Enter a brief excerpt of your post",
                 }
             ),
-            "content": forms.Textarea(
-                attrs={
-                    "class": "textarea textarea-bordered h-64",
-                    "placeholder": "Write your post content here",
-                }
-            ),
+            # "content": forms.Textarea(
+            #     attrs={
+            #         "class": "textarea textarea-bordered h-64",
+            #         "placeholder": "Write your post content here",
+            #     }
+            # ),
             "category": forms.Select(
                 attrs={
                     "class": "input select select-bordered rounded-lg",

@@ -1,3 +1,4 @@
+from django.views import View
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -109,12 +110,18 @@ class UserProfileUpdateView(LoginRequiredMixin, UpdateView):
     context_object_name = "user"
 
     def get_object(self):
+        """
+        Fetch the BlogPost object based on the slug and ensure it belongs to the current user.
+        """
         return get_object_or_404(Account, username=self.kwargs["username"])
 
     def get_success_url(self):
         return reverse_lazy("profile", kwargs={"username": self.object.username})
 
     def get_context_data(self, **kwargs):
+        """
+        Add additional context data to the template.
+        """
         context = super().get_context_data(**kwargs)
 
         return context
@@ -149,41 +156,54 @@ class PostDetailView(LoginRequiredMixin, DetailView):
     model = BlogPost
     template_name = "base/post.html"
     context_object_name = "post"
+    slug_url_kwarg = "slug"
+    slug_field = "slug"
 
     def get_context_data(self, **kwargs):
         # Ensure that self.object is set (fetching the post)
         context = super().get_context_data(**kwargs)
         context["form"] = CommentForm()
-        context["comments"] = Comment.objects.filter(post=self.object)
+        context["comments"] = self.get_comments()
         return context
 
-    # def get_object(self):
-    #     # Fetch the post object here
-    #     return get_object_or_404(BlogPost, slug=self.kwargs["slug"])
+    def get_comments(self):
+        if not hasattr(self, "_comments"):
+            self._comments = Comment.objects.filter(post=self.object)
+        return self._comments
 
-    # def post(self, request, *args, **kwargs):
-    #     # Get the post object in the post method
-    #     post = self.get_object()
-    #     form = CommentForm(request.POST)
+    def post(self, request, *args, **kwargs):
+        # Fetch the post object explicitly
+        self.object = self.get_object()  # Ensures the object is available
 
-    #     if form.is_valid():
-    #         # Create a comment linked to the post and the user
-    #         comment = form.save(commit=False)
-    #         comment.user = request.user
-    #         comment.post = post
-    #         comment.save()
+        # Process the comment form
+        form = CommentForm(request.POST)
 
-    #         # If this is an HTMX request, render just the new comment
-    #         if request.htmx:
-    #             return render(
-    #                 request, "base/partials/comment.html", {"comment": comment}
-    #             )
+        if form.is_valid():
+            # Create and save the comment
+            comment = form.save(commit=False)
+            comment.user = request.user
+            comment.post = self.object  # Use the fetched object
+            comment.save()
 
-    #         # Redirect to the same post if it's not an HTMX request
-    #         return redirect(post.get_absolute_url())
+            # HTMX Response
+            if request.headers.get("HX-Request"):
+                return render(
+                    request, "base/partials/comment.html", {"comment": comment}
+                )
 
-    #     # If the form is not valid, re-render the post page with the form
-    #     return self.render_to_response(self.get_context_data(form=form))
+            # Redirect if not HTMX
+            return redirect('post', slug=self.object.slug)
+
+            # Handle invalid form submission
+        if request.headers.get("HX-Request"):
+            return render(
+                request,
+                "base/partials/comment_form.html",
+                {"form": form},
+            )
+
+        # Fallback for non-HTMX requests
+        return self.render_to_response(self.get_context_data(form=form))
 
 
 class PostListView(ListView):
@@ -264,7 +284,8 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         elif "publish" in self.request.POST:  # If "Publish" button is clicked
             post.status = "published"
 
-        tags_input = self.request.POST.get("tags", "")  # Get tags from hidden input
+        tags_input = self.request.POST.get(
+            "tags", "")  # Get tags from hidden input
         tag_list = [
             tag.strip() for tag in tags_input.split(",") if tag.strip()
         ]  # Clean tags
@@ -321,10 +342,8 @@ class PostUpdateView(LoginRequiredMixin, UpdateView):
         return reverse("profile", kwargs={"username": self.request.user.username})
 
 
-def delete_post(request, slug):
-    post = get_object_or_404(BlogPost, slug=slug)
-    if request.method == "POST":
-        post.delete()
-    if request.htmx:
-        return render(request, "base/partials/delete.html", {"post": post})
-    return render(request, "base/partials/delete.html", {"post": post})
+class PostDeleteView(DeleteView):
+    model = BlogPost
+    template_name = "base/partials/delete.html"
+    context_object_name = 'post'
+    success_url = 'home'

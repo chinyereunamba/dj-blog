@@ -7,6 +7,7 @@ from django.contrib.auth.models import (
 )
 from django.utils.translation import gettext_lazy as _
 from django.utils.text import slugify
+from tinymce import models as tinymce_models
 
 # Create your models here.
 
@@ -48,7 +49,9 @@ class Account(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(_("First name"), max_length=50, blank=True)
     last_name = models.CharField(_("Last name"), max_length=50, blank=True)
 
-    image = models.ImageField(_("Profile Image"), upload_to="profile/", default='user.png')
+    image = models.ImageField(
+        _("Profile Image"), upload_to="profile/", default="user.png"
+    )
 
     last_login = models.DateTimeField(_("Last Login"), auto_now=True, blank=True)
     date_joined = models.DateField(_("Date Joined"), auto_now_add=True, blank=True)
@@ -125,8 +128,8 @@ class BlogPost(models.Model):
 
     user = models.ForeignKey(Account, verbose_name=_("User"), on_delete=models.CASCADE)
     title = models.CharField(_("Post Title"), max_length=255)
-    description = models.TextField(_("Excerpt"))
-    content = models.TextField(_("Post Content"))
+    description = models.CharField(_("Excerpt"), max_length=400)
+    content = tinymce_models.HTMLField(_("Post Content"))
     featured_image = models.URLField(_("Featured Image"), max_length=200, blank=True)
     tags = models.ManyToManyField(Tag, verbose_name=_("Tags"), related_name="post")
     category = models.ForeignKey(
@@ -139,10 +142,18 @@ class BlogPost(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="draft")
     created_at = models.DateTimeField(_("Created"), auto_now_add=True)
     updated_at = models.DateTimeField(_("Updated"), auto_now=True)
-    slug = models.SlugField(_("Slug"), max_length=255, unique=True)
+    slug = models.SlugField(_("Slug"), max_length=255, unique=True, blank=True)
 
     def __str__(self):
         return self.title
+
+    @property
+    def read_time(self):
+        words_per_minute = 200
+        words = len(self.content.split())
+        minutes = words / words_per_minute
+        read_time = round(minutes)
+        return read_time
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -163,7 +174,7 @@ class BlogPost(models.Model):
 class Comment(models.Model):
     user = models.ForeignKey(Account, on_delete=models.CASCADE)
     post = models.ForeignKey(BlogPost, on_delete=models.CASCADE)
-    comment = models.TextField(_('Comment'))
+    comment = models.TextField(_("Comment"))
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

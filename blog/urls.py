@@ -24,6 +24,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("base.urls")),
     path("accounts/", include("allauth.urls")),
+    path("tinymce/", include("tinymce.urls")),
     path("__reload__/", include("django_browser_reload.urls")),
 ]
 

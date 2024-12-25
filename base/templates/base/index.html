@@ -2,13 +2,13 @@
 
 <!-- Hero Section -->
 
-<section class="py-16 text-center">
+<header class="py-16 text-center" aria-label="Technical Blog Hero">
   <h1 class="text-4xl font-bold mb-4">Technical Blog</h1>
   <p class="text-gray-400 max-w-2xl mx-auto px-1">
     A resource for technical insights and discussions. We share knowledge about
     coding, system design, and development trends.
   </p>
-</section>
+</header>
 
 <!-- Featured Posts -->
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
@@ -18,11 +18,11 @@
     {% for post in latest_post %}
 
     <div
-      class="bg-gradient-to-br hover:scale-105 transition-transform duration-300 {% if forloop.counter == 1 %} from-blue-900 to-purple-900{% elif forloop.counter == 2 %} from-green-900 to-blue-900 {% else %} from-purple-900 to-pink-900 {% endif %} rounded-lg overflow-hidden"
+      class="bg-gradient-to-br hover:scale-105 transition-transform duration-300 {% cycle 'from-blue-900 to-purple-900' 'from-green-900 to-blue-900' 'from-purple-900 to-pink-900' %} rounded-lg overflow-hidden"
     >
       <a href="{% url 'post' post.slug %}">
         <img
-          src="https://placehold.co/400x300"
+          src="{{ post.image.url|default:'https://placehold.co/400x300' }}"
           alt="Blog post"
           class="w-full h-48 object-cover"
       /></a>
@@ -30,11 +30,11 @@
         <h3 class="text-xl font-semibold mb-2">
           <a href="{% url 'post' post.slug %}"> {{post.title}} </a>
         </h3>
-        <p class="text-gray-300 mb-4">{{post.description|truncatewords:9}}</p>
+        <p class="text-gray-300 mb-4">{{ post.description|truncatewords:9 }}</p>
         <div class="flex items-center text-sm text-gray-400">
           <span>{{post.created_at|date:"F d, Y"}}</span>
           <span class="mx-2">•</span>
-          <span>11 min read</span>
+          <span>{{post.read_time}} min read</span>
         </div>
       </div>
     </div>
@@ -46,33 +46,41 @@
 <!-- All Posts -->
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
   <h2 class="text-2xl font-semibold mb-8">All Posts</h2>
-  <form
-    hx-get="?"
+
+  <input
+    type="text"
+    name="query"
+    hx-get="?search"
     hx-target="#post-list"
     hx-swap="innerHTML"
     hx-push-url="true"
-    method="GET"
-    class="flex gap-2 mb-8"
-  >
-    <input
-      type="text"
-      name="query"
-      value="{{ query }}"
-      placeholder="Search posts..."
-      class="input input-bordered w-full"
-    />
-    <button type="submit" class="btn btn-secondary">Search</button>
-  </form>
+    hx-boost="true"
+    hx-trigger="keyup delay:500ms"
+    value="{{ query }}"
+    placeholder="Search posts..."
+    class="input input-bordered w-full my-4"
+    hx-indicator=".htmx-indicator"
+  />
+
   <!-- Tags -->
   <div class="flex flex-wrap gap-2 mb-8">
     {% for tag in tags.all %}
+    <!-- Just to keep it in place -->
+
     {% with "?tag="|add:tag.tag as tag_query %}
-      {% if query %}
-        {% with tag_query|add:"&query="|add:query as tag_query %}
-        {% endwith %}
-      {% endif %}
+    <!-- Just to keep it in place -->
+
+    {% if query %}
+    <!-- Just to keep it in place -->
+
+    {% with tag_query|add:"&query="|add:query as tag_query %}
+    <!-- Just to keep it in place -->
+    {% endwith %}
+    <!-- Just to keep it in place -->
+
+    {% endif %}
     <button
-      hx-get="{{ tag_query }}"
+      hx-get="?tag={{ tag.tag }}&query={{ query|default:'' }}"
       hx-target="#post-list"
       hx-swap="innerHTML"
       hx-push-url="true"
@@ -84,6 +92,12 @@
   </div>
 
   <!-- Posts Grid -->
-  <div id="post-list">{% include 'base/partials/post_list.html' %}</div>
+  <div id="post-list">
+    {% include 'base/partials/post_list.html' %}
+    <div class="htmx-indicator my-4 text-center hidden">
+      <span class="loading loading-spinner loading-sm"></span>
+      Loading posts...
+    </div>
+  </div>
 </div>
 {% endblock body %}

@@ -18,10 +18,12 @@
       <div class="flex items-center text-sm text-gray-500">
         <span>{{post.created_at|date:"F d, Y"}}</span>
         <span class="mx-2">•</span>
-        <span>11 min read</span>
+        <span>{{post.read_time}} min read</span>
       </div>
     </div>
   </div>
+  {%empty%}
+  <p class='text-lg'>No post found</p>
   {% endfor %}
 </div>
 

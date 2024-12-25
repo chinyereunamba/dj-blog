@@ -43,14 +43,18 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # Required for django-allauth
     "django.contrib.sites",
+    "django.contrib.humanize",
     # Allauth
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
+    # Main app
     "base",
+    # Add-ons
     "crispy_forms",
     "crispy_tailwind",
+    "tinymce",
 ]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
@@ -150,8 +154,8 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",  # Adjust this to your project's directory
 ]
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'static/media'
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "static/media"
 
 if (
     not DEBUG
@@ -204,3 +208,16 @@ ACCOUNT_EMAIL_VERIFICATION = (
 SOCIALACCOUNT_QUERY_EMAIL = True  # Request email during Google login
 SOCIALACCOUNT_LOGIN_ON_GET = True
 SOCIALACCOUNT_ADAPTER = "base.signals.MySocialAccountAdapter"
+
+
+TINYMCE_DEFAULT_CONFIG = {
+    "theme": "modern",
+    "height": 500,
+    "width": 800,
+    "plugins": "advlist autolink lists link image charmap print preview hr anchor pagebreak",
+    "toolbar": "undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist | link image",
+}
+
+
+TINYMCE_SPELLCHECKER = True
+TINYMCE_COMPRESSOR = True
