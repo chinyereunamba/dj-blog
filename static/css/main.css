@@ -51,9 +51,9 @@ select {
 }
 
 .ck-editor-container {
-  @apply text-[--text];
+  color: #2a303c;
   padding: 1rem;
 }
-/* .ck-word-count{
-    @apply text-text;
-} */
+.ck-word-count{
+    @apply text-[--text];
+}
