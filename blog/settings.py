@@ -16,7 +16,7 @@ SECRET_KEY = config("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = config("DEBUG", default=False, cast=bool)
 
-DEBUG = True
+DEBUG = config("DEBUG", default=False, cast=bool)
 
 if not DEBUG:
     ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="127.0.0.1").split(",")
@@ -213,3 +213,25 @@ SOCIALACCOUNT_ADAPTER = "base.signals.MySocialAccountAdapter"
 
 CKEDITOR_UPLOAD_PATH = "uploads/"
 CKEDITOR_IMAGE_BACKEND = "pillow"  # Optional, required for image editing
+
+
+# settings.py
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "file": {
+            "level": "ERROR",  # Log only errors and above
+            "class": "logging.FileHandler",
+            "filename": BASE_DIR / "django_error.log",  # Specify path to log file
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["file"],
+            "level": "ERROR",
+            "propagate": True,
+        },
+    },
+}

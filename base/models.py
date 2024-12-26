@@ -51,7 +51,11 @@ class Account(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(_("Last name"), max_length=50, blank=True)
 
     image = models.ImageField(
-        _("Profile Image"), upload_to="profile/", default="user.png"
+        _("Profile Image"),
+        upload_to="profile/",
+        default="user.png",
+        null=True,
+        blank=True,
     )
 
     last_login = models.DateTimeField(

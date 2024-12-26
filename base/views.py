@@ -175,6 +175,10 @@ class PostDetailView(LoginRequiredMixin, DetailView):
     def post(self, request, *args, **kwargs):
         # Fetch the post object explicitly
         self.object = self.get_object()  # Ensures the object is available
+        if not self.object.slug:
+            messages.error(request, "This post has no valid slug.")
+            return redirect("home")
+
 
         # Process the comment form
         form = CommentForm(request.POST)

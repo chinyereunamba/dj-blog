@@ -21,7 +21,7 @@
           <i data-lucide="pencil"></i>
           <button
             class="btn btn-secondary"
-            hx-get="{% url 'edit_profile' user.username %}"
+            hx-get="{% url 'edit_profile' username=user.username %}"
             hx-target="#edit"
             hx-swap="innerHTML"
             onclick="document.getElementById('overlay').classList.remove('hidden')"
@@ -100,7 +100,7 @@
             {% for post in posts %}
             <div class="col-span-1 w-full">
               <a
-                href="{% url 'post' post.slug %}"
+                href="{% url 'post' slug=post.slug %}"
                 class="block p-4 rounded-lg bg-base-300 hover:bg-base-200 hover:scale-105 transition-transform duration-300"
               >
                 <h3 class="font-semibold mb-2">{{post.title}}</h3>

@@ -24,7 +24,7 @@
     <div
       class="bg-gradient-to-br hover:scale-105 transition-transform duration-300 {% cycle 'from-blue-900 to-purple-900' 'from-green-900 to-blue-900' 'from-purple-900 to-pink-900' %} rounded-lg overflow-hidden"
     >
-      <a href="{% url 'post' post.slug %}">
+      <a href="{% url 'post' slug=post.slug %}">
         <img
           src="{{ post.image.url|default:'https://placehold.co/400x300' }}"
           alt="Blog post"
@@ -32,7 +32,7 @@
       /></a>
       <div class="p-6">
         <h3 class="text-xl text-gray-300 font-semibold mb-2">
-          <a href="{% url 'post' post.slug %}"> {{post.title}} </a>
+          <a href="{% url 'post' slug=post.slug %}"> {{post.title}} </a>
         </h3>
         <p class="text-gray-300 mb-4">{{ post.description|truncatewords:9 }}</p>
         <div class="flex items-center text-sm text-gray-400">
