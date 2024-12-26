@@ -46,11 +46,6 @@ def login_view(request):
     return render(request, "base/login.html")
 
 
-from django.contrib.auth.views import LoginView
-from django.contrib import messages
-from django.urls import reverse_lazy
-
-
 class UserLoginView(LoginView):
     template_name = "base/login.html"
     redirect_authenticated_user = True

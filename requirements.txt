@@ -12,8 +12,11 @@ dj-database-url==2.3.0
 Django==5.1.4
 django-allauth==65.3.0
 django-browser-reload==1.17.0
+django-ckeditor==6.7.2
+django-ckeditor-5==0.2.15
 django-cloudinary-storage==0.3.0
 django-crispy-forms==1.14.0
+django-js-asset==3.0.1
 django-tinymce==4.1.0
 google-api-core==2.24.0
 googleapis-common-protos==1.66.0
