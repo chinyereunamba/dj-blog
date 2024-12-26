@@ -1,13 +1,26 @@
 from django.contrib.auth import views as auth_views
 from django.urls import path
-from .views import (about, activate, login_view, logout_view, PostCreateView, PostDeleteView,
-    PostDetailView, PostListView, PostUpdateView, preview_post, profile, SignupView,
-    UserProfileUpdateView)
+from .views import (
+    about,
+    activate,
+    login_view,
+    logout_view,
+    PostCreateView,
+    PostDeleteView,
+    PostDetailView,
+    PostListView,
+    PostUpdateView,
+    preview_post,
+    profile,
+    SignupView,
+    UserLoginView,
+    UserProfileUpdateView,
+)
 
 urlpatterns = [
     path("", PostListView.as_view(), name="home"),
     # Auth urls
-    path("login/", login_view, name="login"),
+    path("login/", UserLoginView.as_view(), name="login"),
     path("sign-up/", SignupView.as_view(), name="register"),
     path("activate/<uidb64>/<token>/", activate, name="activate"),
     path("logout/", logout_view, name="logout"),
@@ -22,7 +35,7 @@ urlpatterns = [
     path("add-post/", PostCreateView.as_view(), name="add_post"),
     path("post/<slug:slug>/edit/", PostUpdateView.as_view(), name="edit_post"),
     path("post/<slug:slug>/delete/", PostDeleteView.as_view(), name="delete_post"),
-    path("post/<slug:slug>/preview/", preview_post, name='preview_post'),
+    path("post/<slug:slug>/preview/", preview_post, name="preview_post"),
     # Comment method urls
     # path("post/<slug:slug>/", CommentCreateView.as_view(), name="comment"),
 ]

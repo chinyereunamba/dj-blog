@@ -2,6 +2,7 @@ from django.views import View
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import LoginView
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
@@ -43,6 +44,26 @@ def login_view(request):
         else:
             messages.error(request, "Username or password incorrect")
     return render(request, "base/login.html")
+
+
+from django.contrib.auth.views import LoginView
+from django.contrib import messages
+from django.urls import reverse_lazy
+
+
+class UserLoginView(LoginView):
+    template_name = "base/login.html"
+    redirect_authenticated_user = True
+
+    # Redirect URL after successful login
+    def get_success_url(self):
+        return reverse_lazy("profile", kwargs={"username": self.request.user.username})
+
+    # Handle invalid login attempts
+    def form_invalid(self, form):
+        # Add error message
+        messages.error(self.request, "Username or password incorrect.")
+        return super().form_invalid(form)
 
 
 class SignupView(CreateView):
@@ -100,7 +121,8 @@ def logout_view(request):
 def profile(request, username):
     user = get_object_or_404(Account, username=username)
     post = BlogPost.objects.filter(user=user)
-    context = {"posts": post, "user": user}
+    drafts = post.filter(status="draft")
+    context = {"posts": post, "user": user, "drafts": drafts}
     return render(request, "base/profile.html", context)
 
 
@@ -179,7 +201,6 @@ class PostDetailView(LoginRequiredMixin, DetailView):
             messages.error(request, "This post has no valid slug.")
             return redirect("home")
 
-
         # Process the comment form
         form = CommentForm(request.POST)
 
@@ -197,7 +218,7 @@ class PostDetailView(LoginRequiredMixin, DetailView):
                 )
 
             # Redirect if not HTMX
-            return redirect('post', slug=self.object.slug)
+            return redirect("post", slug=self.object.slug)
 
             # Handle invalid form submission
         if request.headers.get("HX-Request"):
@@ -289,8 +310,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         elif "publish" in self.request.POST:  # If "Publish" button is clicked
             post.status = "published"
 
-        tags_input = self.request.POST.get(
-            "tags", "")  # Get tags from hidden input
+        tags_input = self.request.POST.get("tags", "")  # Get tags from hidden input
         tag_list = [
             tag.strip() for tag in tags_input.split(",") if tag.strip()
         ]  # Clean tags
@@ -350,8 +370,8 @@ class PostUpdateView(LoginRequiredMixin, UpdateView):
 class PostDeleteView(DeleteView):
     model = BlogPost
     template_name = "base/partials/delete.html"
-    context_object_name = 'post'
-    success_url = 'home'
+    context_object_name = "post"
+    success_url = "home"
 
 
 @login_required
@@ -360,7 +380,7 @@ def preview_post(request, slug):
 
     # Check if user has permission to preview the post
     if not request.user.has_permission_to_preview(post):
-        return redirect('home')
+        return redirect("home")
 
     context = {"post": post, "is_preview": True}  # Flag to indicate it's a preview
     return render(request, "base/post_preview.html", context)

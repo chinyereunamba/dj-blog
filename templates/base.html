@@ -21,22 +21,7 @@
     {% block content %}{% endblock content %}
   </body>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- <script src="{% static 'js/theme.js' %}"></script> -->
   <script>
     lucide.createIcons();
-    // Theme toggle functionality
-    const themeController = document.querySelector(".theme-controller");
-
-    // Check for saved theme preference or use default theme
-    const currentTheme = localStorage.getItem("theme") || "bumblebee";
-    document.documentElement.setAttribute("data-theme", currentTheme);
-    themeController.checked = currentTheme === "dark";
-
-    // Switch theme when toggle is clicked
-    themeController.addEventListener("change", (e) => {
-      const newTheme = e.target.checked ? "dark" : "bumblebee";
-      document.documentElement.setAttribute("data-theme", newTheme);
-      localStorage.setItem("theme", newTheme);
-    });
   </script>
 </html>

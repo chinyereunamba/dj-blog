@@ -17,6 +17,7 @@ SECRET_KEY = config("SECRET_KEY")
 # DEBUG = config("DEBUG", default=False, cast=bool)
 
 DEBUG = config("DEBUG", default=False, cast=bool)
+# DEBUG = True
 
 if not DEBUG:
     ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="127.0.0.1").split(",")
