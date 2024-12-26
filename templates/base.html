@@ -6,16 +6,37 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Blog Homepage</title>
-    <link rel="stylesheet" href="{% static "css/output.css" %}">
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
     <script
       defer
       src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
     ></script>
+    {% comment %}
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    {% endcomment %}
   </head>
 
-  <body class="bg-dark text-gray-100 min-h-screen">
+  <body class="text-[--text] bg-base-100 min-h-screen">
     {% block content %}{% endblock content %}
   </body>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- <script src="{% static 'js/theme.js' %}"></script> -->
+  <script>
+    lucide.createIcons();
+    // Theme toggle functionality
+    const themeController = document.querySelector(".theme-controller");
+
+    // Check for saved theme preference or use default theme
+    const currentTheme = localStorage.getItem("theme") || "bumblebee";
+    document.documentElement.setAttribute("data-theme", currentTheme);
+    themeController.checked = currentTheme === "dark";
+
+    // Switch theme when toggle is clicked
+    themeController.addEventListener("change", (e) => {
+      const newTheme = e.target.checked ? "dark" : "bumblebee";
+      document.documentElement.setAttribute("data-theme", newTheme);
+      localStorage.setItem("theme", newTheme);
+    });
+  </script>
 </html>

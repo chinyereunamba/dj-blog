@@ -2,26 +2,58 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Light Theme Colors */
+  --primary: #3b82f6;
+  --secondary: #9333ea;
+  --accent: #fb7185;
+  --neutral: #2a303c;
+  --base-100: oklch(100% 0 0);
+  --base-200: oklch(96.1151% 0 0);
+  --base-300: oklch(92.4169% 0.00108 197.137559);
+}
+
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Dark Theme Colors */
+    --primary: #2563eb;
+    --secondary: #d946ef;
+    --accent: #f472b6;
+    --neutral: #1e293b;
+    --base-100: oklch(25.3267% 0.015896 252.417568);
+    --base-200: oklch(23.2607% 0.013807 253.100675);
+    --base-300: oklch(21.1484% 0.01165 254.087939);
+  }
+}
 select {
-    appearance: none; 
-    -webkit-appearance: none; 
-    -moz-appearance: none;
-    padding-right: 2.5rem;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 2.5rem;
 }
 
 .select-wrapper svg {
-    height: 1.25rem; 
-    width: 1.25rem;
+  height: 1.25rem;
+  width: 1.25rem;
 }
 
 .select-wrapper select {
-    padding-right: 2.5rem;
+  padding-right: 2.5rem;
 }
 
-#div_id_category > div{
-    @apply relative
+#div_id_category > div {
+  @apply relative;
 }
 
-#div_id_category svg{
-    @apply absolute w-6 h-6 right-3 top-1/2 -translate-y-1/2
+#div_id_category svg {
+  @apply absolute w-6 h-6 right-3 top-1/2 -translate-y-1/2;
 }
+
+.ck-editor-container {
+  @apply text-[--text];
+  padding: 1rem;
+}
+/* .ck-word-count{
+    @apply text-text;
+} */

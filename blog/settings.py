@@ -1,6 +1,7 @@
 from pathlib import Path
 from decouple import config
 import dj_database_url
+from .ckeditor_config import *
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -54,7 +55,7 @@ INSTALLED_APPS = [
     # Add-ons
     "crispy_forms",
     "crispy_tailwind",
-    "tinymce",
+    "django_ckeditor_5",
 ]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
@@ -210,14 +211,5 @@ SOCIALACCOUNT_LOGIN_ON_GET = True
 SOCIALACCOUNT_ADAPTER = "base.signals.MySocialAccountAdapter"
 
 
-TINYMCE_DEFAULT_CONFIG = {
-    "theme": "modern",
-    "height": 500,
-    "width": 800,
-    "plugins": "advlist autolink lists link image charmap print preview hr anchor pagebreak",
-    "toolbar": "undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist | link image",
-}
-
-
-TINYMCE_SPELLCHECKER = True
-TINYMCE_COMPRESSOR = True
+CKEDITOR_UPLOAD_PATH = "uploads/"
+CKEDITOR_IMAGE_BACKEND = "pillow"  # Optional, required for image editing

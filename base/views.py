@@ -21,6 +21,7 @@ from django.views.generic import (
 )
 from django.urls import reverse_lazy, reverse
 from django.db.models import Q
+from django.contrib.auth.decorators import login_required
 
 from .forms import CommentForm, NewUserForm, PostForm, ProfileForm, SearchForm
 from .models import Account, BlogPost, Comment, Tag
@@ -347,3 +348,15 @@ class PostDeleteView(DeleteView):
     template_name = "base/partials/delete.html"
     context_object_name = 'post'
     success_url = 'home'
+
+
+@login_required
+def preview_post(request, slug):
+    post = get_object_or_404(BlogPost, slug=request.GET.get("slug"))
+
+    # Check if user has permission to preview the post
+    if not request.user.has_permission_to_preview(post):
+        return redirect('home')
+
+    context = {"post": post, "is_preview": True}  # Flag to indicate it's a preview
+    return render(request, "base/post_preview.html", context)

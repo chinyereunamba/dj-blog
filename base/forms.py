@@ -2,7 +2,9 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 
 from .models import Account, BlogPost, Category, Comment, Tag
-from tinymce.widgets import TinyMCE
+
+from django_ckeditor_5.widgets import CKEditor5Widget
+
 
 class NewUserForm(UserCreationForm):
 
@@ -93,7 +95,10 @@ class ProfileForm(forms.ModelForm):
 
 
 class PostForm(forms.ModelForm):
-    content = forms.CharField(widget=TinyMCE())
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["content"].required = False
 
     class Meta:
         model = BlogPost
@@ -111,12 +116,6 @@ class PostForm(forms.ModelForm):
                     "placeholder": "Enter a brief excerpt of your post",
                 }
             ),
-            # "content": forms.Textarea(
-            #     attrs={
-            #         "class": "textarea textarea-bordered h-64",
-            #         "placeholder": "Write your post content here",
-            #     }
-            # ),
             "category": forms.Select(
                 attrs={
                     "class": "input select select-bordered rounded-lg",

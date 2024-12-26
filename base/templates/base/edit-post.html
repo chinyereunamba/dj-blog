@@ -10,6 +10,7 @@
       class="space-y-6 p-6 rounded-lg"
     >
       {% csrf_token %}
+      {{form.media}}
       <!-- Title -->
       <div class="form-control">
         <label for="{{ form.title.id_for_label }}" class="label">
@@ -31,7 +32,7 @@
       </div>
 
       <!-- Content -->
-      <div class="form-control">
+      <div class="form-control text-black">
         <label for="{{ form.content.id_for_label }}" class="label">
           <span class="label-text">Content</span>
         </label>
@@ -87,8 +88,11 @@
 
       <!-- Buttons -->
       <div class="flex justify-end space-x-4">
-        <button type="submit" name="save_draft" class="btn btn-outline">
+        <button type="submit" name="save_draft" class="btn">
           Save Draft
+        </button>
+        <button type="submit" name="save_draft" class="btn btn-outline">
+          Preview
         </button>
         <button type="submit" name="publish" class="btn btn-primary">
           Publish Post
@@ -115,7 +119,7 @@
         "px-2",
         "py-1",
         "rounded-full",
-        "bg-blue-500",
+        "bg-accent",
         "text-white",
         "text-sm",
         "flex",

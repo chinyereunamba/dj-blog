@@ -7,7 +7,8 @@ from django.contrib.auth.models import (
 )
 from django.utils.translation import gettext_lazy as _
 from django.utils.text import slugify
-from tinymce import models as tinymce_models
+from django_ckeditor_5.fields import CKEditor5Field
+from django.utils import timezone
 
 # Create your models here.
 
@@ -53,8 +54,10 @@ class Account(AbstractBaseUser, PermissionsMixin):
         _("Profile Image"), upload_to="profile/", default="user.png"
     )
 
-    last_login = models.DateTimeField(_("Last Login"), auto_now=True, blank=True)
-    date_joined = models.DateField(_("Date Joined"), auto_now_add=True, blank=True)
+    last_login = models.DateTimeField(
+        _("Last Login"), auto_now=True, blank=True)
+    date_joined = models.DateField(
+        _("Date Joined"), auto_now_add=True, blank=True)
 
     is_active = models.BooleanField(_("Active"), default=True)
     is_superuser = models.BooleanField(_("Super User"), default=False)
@@ -126,12 +129,15 @@ class BlogPost(models.Model):
         ("published", "Published"),
     ]
 
-    user = models.ForeignKey(Account, verbose_name=_("User"), on_delete=models.CASCADE)
+    user = models.ForeignKey(Account, verbose_name=_(
+        "User"), on_delete=models.CASCADE)
     title = models.CharField(_("Post Title"), max_length=255)
     description = models.CharField(_("Excerpt"), max_length=400)
-    content = tinymce_models.HTMLField(_("Post Content"))
-    featured_image = models.URLField(_("Featured Image"), max_length=200, blank=True)
-    tags = models.ManyToManyField(Tag, verbose_name=_("Tags"), related_name="post")
+    content = CKEditor5Field(_("Post Content"), config_name="extends")
+    featured_image = models.URLField(
+        _("Featured Image"), max_length=200, blank=True)
+    tags = models.ManyToManyField(
+        Tag, verbose_name=_("Tags"), related_name="post")
     category = models.ForeignKey(
         Category,
         verbose_name=_("Category"),
@@ -139,13 +145,20 @@ class BlogPost(models.Model):
         blank=True,
         null=True,
     )
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="draft")
+    status = models.CharField(
+        max_length=10, choices=STATUS_CHOICES, default="draft")
     created_at = models.DateTimeField(_("Created"), auto_now_add=True)
+    publish_date = models.DateTimeField(_("Published"), blank=True, null=True)
     updated_at = models.DateTimeField(_("Updated"), auto_now=True)
     slug = models.SlugField(_("Slug"), max_length=255, unique=True, blank=True)
 
     def __str__(self):
         return self.title
+
+    def is_published(self):
+        return self.status == "published" and (
+            self.publish_date is None or self.publish_date <= timezone.now()
+        )
 
     @property
     def read_time(self):
@@ -169,6 +182,20 @@ class BlogPost(models.Model):
             self.slug = slug
 
         super().save(*args, **kwargs)
+
+    def has_permission_to_preview(self, user):
+        """
+       Check if the given user can preview this blog post.
+       The user can preview if they are the author, have staff/admin permissions,
+       or belong to a group (e.g., 'Editors') that can preview drafts.
+       """
+        return (
+            self.user == user or # Check if user is the author
+            user.is_staff or
+            user.is_superuser or
+            # Check if user is in 'Editors' group
+            user.groups.filter(name='Editors').exists()
+        )
 
 
 class Comment(models.Model):

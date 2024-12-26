@@ -1,7 +1,8 @@
 from django.contrib.auth import views as auth_views
 from django.urls import path
-from .views import (about, activate, PostDeleteView, login_view, logout_view, PostCreateView,
-    PostDetailView, PostListView, PostUpdateView, profile, SignupView, UserProfileUpdateView)
+from .views import (about, activate, login_view, logout_view, PostCreateView, PostDeleteView,
+    PostDetailView, PostListView, PostUpdateView, preview_post, profile, SignupView,
+    UserProfileUpdateView)
 
 urlpatterns = [
     path("", PostListView.as_view(), name="home"),
@@ -21,6 +22,7 @@ urlpatterns = [
     path("add-post/", PostCreateView.as_view(), name="add_post"),
     path("post/<slug:slug>/edit/", PostUpdateView.as_view(), name="edit_post"),
     path("post/<slug:slug>/delete/", PostDeleteView.as_view(), name="delete_post"),
+    path("post/<slug:slug>/preview/", preview_post, name='preview_post'),
     # Comment method urls
     # path("post/<slug:slug>/", CommentCreateView.as_view(), name="comment"),
 ]
